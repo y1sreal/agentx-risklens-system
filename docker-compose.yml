@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agentx-backend
+    restart: always
+    volumes:
+      - ./backend:/app
+      - backend_data:/app/data
+    ports:
+      - "8777:8000"
+    environment:
+      - DATABASE_URL=sqlite:///app.db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - agentx-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${BACKEND_URL:-http://localhost:8777}
+    container_name: agentx-frontend
+    restart: always
+    ports:
+      - "8778:80"
+    environment:
+      - VITE_API_URL=${BACKEND_URL:-http://localhost:8777}
+    depends_on:
+      - backend
+    networks:
+      - agentx-network
+  
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: agentx-ngrok
+    restart: always
+    command:
+      - "http"
+      - "frontend:80"
+      - "--authtoken=${NGROK_AUTH_TOKEN}"
+    ports:
+      - "8776:4040" 
+    depends_on:
+      - frontend
+    networks:
+      - agentx-network
+
+networks:
+  agentx-network:
+    driver: bridge
+
+volumes:
+  backend_data: 

@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pydantic-settings
+python-dotenv
+openai
+python-multipart
+json_repair
+pandas
+numpy
+scikit-learn
+scipy
+faiss-cpu
+requests
+tiktoken
+tenacity 
